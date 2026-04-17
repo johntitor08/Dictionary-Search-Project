@@ -1,5 +1,8 @@
 package com.example;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+
 public class BST {
 
     private BSTNode root;
@@ -46,13 +49,18 @@ public class BST {
         return searchRec(node.right, word);
     }
 
+    // FIX: iterative traversal to avoid stack overflow on large/degenerate trees
     public int count() {
-        return countRec(root);
-    }
-
-    private int countRec(BSTNode node) {
-        if (node == null)
-            return 0;
-        return 1 + countRec(node.left) + countRec(node.right);
+        if (root == null) return 0;
+        int count = 0;
+        Deque<BSTNode> stack = new ArrayDeque<>();
+        stack.push(root);
+        while (!stack.isEmpty()) {
+            BSTNode node = stack.pop();
+            count++;
+            if (node.left  != null) stack.push(node.left);
+            if (node.right != null) stack.push(node.right);
+        }
+        return count;
     }
 }

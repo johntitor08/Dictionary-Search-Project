@@ -3,19 +3,27 @@ package com.example;
 import java.util.Random;
 
 public class QuerySelector {
+
+    // FIX: use Fisher-Yates shuffle to pick present words without duplicates
     public static String[] select(String[] words, int numPresent, int numAbsent, long seed) {
         int n = words.length;
-        if (numPresent > n)
-            numPresent = n;
+        if (numPresent > n) numPresent = n;
+
         String[] queries = new String[numPresent + numAbsent];
         Random rng = new Random(seed);
-        // select present words: pick evenly across array
-        for (int i = 0; i < numPresent; i++) {
-            // random index
-            int idx = Math.abs(rng.nextInt()) % n;
-            queries[i] = words[idx];
+
+        // Shuffle a copy of the indices and take the first numPresent
+        int[] indices = new int[n];
+        for (int i = 0; i < n; i++) indices[i] = i;
+        for (int i = n - 1; i > 0; i--) {
+            int j = rng.nextInt(i + 1);
+            int tmp = indices[i]; indices[i] = indices[j]; indices[j] = tmp;
         }
-        // generate absent words by mutating existing words or random strings
+        for (int i = 0; i < numPresent; i++) {
+            queries[i] = words[indices[i]];
+        }
+
+        // Generate absent words that don't exist in the dictionary or query list
         int k = 0;
         while (k < numAbsent) {
             String candidate = mutate(words[Math.abs(rng.nextInt()) % n]);
@@ -28,7 +36,6 @@ public class QuerySelector {
     }
 
     private static String mutate(String s) {
-        // simple mutation: append a random suffix and maybe change a char
         StringBuilder sb = new StringBuilder(s);
         sb.append("_x");
         int pos = sb.length() > 0 ? (Math.abs(sb.hashCode()) % sb.length()) : 0;
@@ -38,11 +45,9 @@ public class QuerySelector {
     }
 
     private static boolean contains(String[] arr, String key) {
-        for (int i = 0; i < arr.length; i++) {
-            if (arr[i] == null)
-                continue;
-            if (arr[i].equals(key))
-                return true;
+        for (String s : arr) {
+            if (s == null) continue;
+            if (s.equals(key)) return true;
         }
         return false;
     }

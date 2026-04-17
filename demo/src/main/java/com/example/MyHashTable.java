@@ -28,10 +28,12 @@ public class MyHashTable {
         }
     }
 
+    // FIX: guard against null/empty keys to avoid silent collision at index 0
     private int hash(String w) {
+        if (w == null || w.isEmpty()) return 0;
         long res = 0L;
         for (int i = 0; i < w.length(); i++) {
-            res = (res * 31L + (int) w.charAt(i)) % M;
+            res = (res * 31L + w.charAt(i)) % M;
         }
         return (int) res;
     }

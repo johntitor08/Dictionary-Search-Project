@@ -7,12 +7,15 @@ import java.util.Scanner;
 
 public class App {
 
-    private static final String CSV_FILE = "dict.csv";
+    // FIX: default path used only as fallback; CLI arg takes precedence
+    private static final String DEFAULT_CSV = "dict.csv";
     private static BST dictionaryBST = new BST();
 
     public static void main(String[] args) {
+        String csvFile = (args.length >= 1) ? args[0] : DEFAULT_CSV;
+
         System.out.println("=== DICTIONARY SEARCH USING BST ===");
-        loadCSV();
+        loadCSV(csvFile);
 
         Scanner sc = new Scanner(System.in);
 
@@ -51,10 +54,10 @@ public class App {
         }
     }
 
-    private static void loadCSV() {
-        System.out.println("Loading dictionary...");
+    private static void loadCSV(String csvFile) {
+        System.out.println("Loading dictionary from: " + csvFile);
 
-        try (BufferedReader br = new BufferedReader(new FileReader(CSV_FILE))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
             String line;
 
             while ((line = br.readLine()) != null) {
